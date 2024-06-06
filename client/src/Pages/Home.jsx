@@ -7,7 +7,11 @@ const Home = () => {
 
   const [roomId, setroomId] = useState('')
   const [username, setusername] = useState('')
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState('');
   const navigate = useNavigate()
+
+  const setoption = (option) => (setSelected(option), setIsOpen(false));
 
   const createnewroom = (e) => {
     e.preventDefault();
@@ -17,13 +21,14 @@ const Home = () => {
   }
 
   const joinroom = () => {
-    if (!roomId || !username) {
+    if (!roomId || !username || !selected) {
       toast.error('Empty Fields ☹️')
       return
     }
     navigate(`/editor/${roomId}`, {
       state: {
         username,
+        selected
       }
     })
   }
@@ -48,6 +53,20 @@ const Home = () => {
             className='inputBox'
             placeholder='Enter Room ID'
           />
+
+          <div className='optionarea'>
+            <button className = 'optionbtn' onClick={() => setIsOpen(!isOpen)}>
+              {selected ? (selected) : ('Check editor options')}
+            </button>
+
+            {isOpen && (
+              <div className='options'>
+                <p onClick={() => setoption('Python')}> Python</p>
+                <p onClick={() => setoption('HTML,CSS,JS')}> HTML,CSS,JS</p>
+              </div>
+            )}
+          </div>
+
           <button className='btn' onClick={joinroom}>Join</button>
           <span className='createInfo'>Generate <button className='btn ' onClick={createnewroom}>New Room ID</button></span>
         </div>

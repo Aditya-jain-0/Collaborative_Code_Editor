@@ -15,7 +15,7 @@ const Editor = ({socketRef,roomId,onCodeChange}) => {
     async function init(){
       editorRef.current =  Codemirror.fromTextArea(document.getElementById('rteditor'),{
         mode:{name:'python',json:true},
-        theme:'material-ocean',
+        // theme:'material-ocean',
         autoCloseTags:true,
         autoCloseBrackets:true,
         lineNumbers:true

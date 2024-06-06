@@ -17,25 +17,33 @@ const EditorPage = () => {
   const [opt, setopt] = useState("")
   const [inp, setinp] = useState("")
   const userref = useRef("");
+  const userlang = useRef("")
 
   const clroptscreen = () => { setopt("") }
 
-  if (location.state?.username) {
+  if (location.state?.username && location.state?.selected) {
     userref.current = location.state.username;
+    userlang.current = location.state.selected
   }
 
   const runcodefn = async () => {
-    socketRef.current.emit('compile-code', {
-      code: codeRef.current,
-      input: inp
-    })
-    socketRef.current.on('compile-code', ({ outpt }) => {
-      if (outpt) {
-        setopt(outpt);
-      } else {
-        setopt("Error")
-      }
-    })
+    if (userlang.current === 'Python') {
+      socketRef.current.emit('compile-code', {
+        code: codeRef.current,
+        input: inp
+      })
+      socketRef.current.on('compile-code', ({ outpt }) => {
+        if (outpt) {
+          setopt(outpt);
+        } else {
+          setopt("Error")
+        }
+      })
+    } else {
+      const code = codeRef.current;
+      const webcontent = document.getElementById('webcontent')
+      webcontent.contentDocument.webcontent.innerHTML = code;
+    }
   }
 
   useEffect(() => {
@@ -121,7 +129,7 @@ const EditorPage = () => {
             <div className='memList'>
               <h3 className='currentuser'>{userref.current}</h3>
               {clients.map((client) => (
-                client.username!== userref.current &&
+                client.username !== userref.current &&
                 <Client
                   key={client.socketId}
                   username={client.username}
@@ -132,6 +140,7 @@ const EditorPage = () => {
         </div>
         <div className='editorWrap'>
           <Editor
+            curruser={userref.current}
             socketRef={socketRef}
             roomId={roomId}
             onCodeChange={(code) => {
@@ -139,17 +148,25 @@ const EditorPage = () => {
             }}
           />
         </div>
-        <div className='input-output-area'>
-          <div className='input-area'>
-            <h4>Input :- </h4>
-            <textarea value={inp} onChange={(e) => setinp(e.target.value)}></textarea>
+
+        {userlang.current === 'Python' ? (
+          <div className='input-output-area'>
+            <div className='input-area'>
+              <h4>Input :- </h4>
+              <textarea value={inp} onChange={(e) => setinp(e.target.value)}></textarea>
+            </div>
+            <div className='output-area'>
+              <h4>Output :- </h4>
+              <div className='output'>{opt}</div>
+              <button className='clrbtn' onClick={clroptscreen}>Clear</button>
+            </div>
           </div>
-          <div className='output-area'>
-            <h4>Output :- </h4>
-            <div className='output'>{opt}</div>
-            <button className='clrbtn' onClick={clroptscreen}>Clear</button>
+        ) : (
+          <div>
+            <h3 className='webheading'>Web view</h3>
+            <div id='webcontent'></div>
           </div>
-        </div>
+        )}
       </div>
       <div className='right-container'>
         <div>

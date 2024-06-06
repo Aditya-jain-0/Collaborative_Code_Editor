@@ -3,16 +3,23 @@ const app = express();
 const http = require('http')
 const { Server } = require('socket.io')
 const cors = require('cors')
+const path = require('path');
 
 const server = http.createServer(app)
 const io = new Server(server)
+
+app.use(cors());
+app.use(express.static(path.join(__dirname,'..','client','build' )));
+app.use((req,res,next)=>{
+    res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'))
+})
+
 require('dotenv').config()
 
-const compiler = require('compilex')
+const compiler = require('compilex');
 var options = { stats: true }; //prints stats on console 
 compiler.init(options);
 
-app.use(cors());
 
 const userSocketMap = {}
 
